@@ -6,7 +6,7 @@
 // helper types to be more explicit
 type char = u8;
 type ptr<T> = usize; // all pointers are usize'd
-type struct<T> = T;  // structs are references already in AS
+type struct<T> = T; // structs are references already in AS
 
 /** Read command-line argument data. */
 // @ts-ignore: decorator
@@ -531,6 +531,34 @@ export declare function random_get(
 @unsafe
 export declare function sched_yield(): errno;
 
+/*
+  ;;; Directly connect to a socket.
+  ;;;
+  ;;; This is a temporarily workaround that contradicts the philosophy of WASI, 
+  ;;; but which is necessary for enabling an entire suite of networking workloads.
+  ;;;
+  ;;; As the sockets proposal is adapted, this should be entirely removed and replaced
+  ;;; with that proposal.
+  ;;;
+  ;;; See https://github.com/WebAssembly/WASI/pull/312
+
+  (@interface func (export "sock_connect")
+    (param $ipv4_addr u32)
+    (param $port u16)
+    (result $error $errno)
+    (result $sock_fd $fd)
+  )
+*/
+
+/** Directly connect to a socket. */
+/** This is a temporarily workaround that contradicts the philosophy of WASI. */
+/** but which is temporary for enabling an entire suite of networking workloads. */
+/** As the sockets proposal is adopted, this should be entirely replaced by that proposal. */
+/** See . https://github.com/WebAssembly/WASI/pull/312*/
+// @ts-ignore: decorator
+@unsafe
+export declare function sock_connect(sock: fd, ipv4: u32, port: u16): errno;
+
 /** Receive a message from a socket. */
 // @ts-ignore: decorator
 @unsafe
@@ -586,7 +614,7 @@ export namespace advice {
   /** The application expects to access the specified data sequentially from lower offsets to higher offsets. */
   // @ts-ignore: decorator
   @inline
-  export const SEQUENTIAL : advice = 1;
+  export const SEQUENTIAL: advice = 1;
   /** The application expects to access the specified data in a random order. */
   // @ts-ignore: decorator
   @inline
@@ -634,7 +662,8 @@ export type device = u64;
 export type dircookie = u64;
 
 /** A directory entry. */
-@unmanaged export class dirent {
+@unmanaged
+export class dirent {
   /** The offset of the next directory entry stored in this directory. */
   next: dircookie;
   /** The serial number of the file referred to by this directory entry. */
@@ -959,7 +988,9 @@ export namespace errno {
 }
 export type errno = u16;
 
-@unmanaged abstract class $event { // size=16/32
+@unmanaged
+abstract class $event {
+  // size=16/32
   /** User-provided value that got attached to `subscription#userdata`. */
   userdata: userdata;
   /** If non-zero, an error that occurred while processing the subscription request. */
@@ -971,13 +1002,15 @@ export type errno = u16;
 }
 
 /** An event that occurred. */
-@unmanaged export abstract class event extends $event {
+@unmanaged
+export abstract class event extends $event {
   private __padding1: u64;
   private __padding2: u64;
 }
 
 /** An event that occurred when type is `eventtype.FD_READ` or `eventtype.FD_WRITE`. */
-@unmanaged export class event_fd_readwrite extends $event {
+@unmanaged
+export class event_fd_readwrite extends $event {
   /* The number of bytes available for reading or writing. */
   nbytes: filesize;
   /* The state of the file descriptor. */
@@ -1044,7 +1077,8 @@ export namespace fdflags {
 export type fdflags = u16;
 
 /** File descriptor attributes. */
-@unmanaged export class fdstat {
+@unmanaged
+export class fdstat {
   /** File type. */
   filetype: filetype;
   /** File descriptor flags. */
@@ -1062,7 +1096,8 @@ export type filedelta = i64;
 export type filesize = u64;
 
 /** File attributes. */
-@unmanaged export class filestat {
+@unmanaged
+export class filestat {
   /** Device ID of device containing the file. */
   dev: device;
   /** File serial number. */
@@ -1143,7 +1178,8 @@ export type fstflags = u16;
 export type inode = u64;
 
 /** A region of memory for scatter/gather reads. */
-@unmanaged export class iovec {
+@unmanaged
+export class iovec {
   /** The address of the buffer to be filled. */
   buf: usize;
   /** The length of the buffer to be filled. */
@@ -1192,18 +1228,22 @@ export namespace preopentype {
 }
 export type preopentype = u8;
 
-@unmanaged abstract class $prestat { // WASM32: size=1/8, WASM64: size=1/16
+@unmanaged
+abstract class $prestat {
+  // WASM32: size=1/8, WASM64: size=1/16
   /* The type of the pre-opened capability. */
   type: preopentype;
 }
 
 /* Information about a pre-opened capability. */
-@unmanaged export abstract class prestat extends $prestat {
+@unmanaged
+export abstract class prestat extends $prestat {
   private __padding0: usize;
 }
 
 /** The contents of a $prestat when type is `preopentype.DIR`. */
-@unmanaged export class prestat_dir extends $prestat {
+@unmanaged
+export class prestat_dir extends $prestat {
   /** The length of the directory name for use with `fd_prestat_dir_name`. */
   name_len: usize;
 }
@@ -1500,7 +1540,9 @@ export namespace subclockflags {
 }
 export type subclockflags = u16;
 
-@unmanaged abstract class $subscription { // size=16/48
+@unmanaged
+abstract class $subscription {
+  // size=16/48
   /** User-provided value that is attached to the subscription. */
   userdata: userdata;
   /** The type of the event to which to subscribe. */
@@ -1510,7 +1552,8 @@ export type subclockflags = u16;
 }
 
 /** Subscription to an event. */
-@unmanaged export abstract class subscription extends $subscription {
+@unmanaged
+export abstract class subscription extends $subscription {
   private __padding1: u64;
   private __padding2: u64;
   private __padding3: u64;
@@ -1518,7 +1561,8 @@ export type subclockflags = u16;
 }
 
 /* Subscription to an event of type `eventtype.CLOCK`.**/
-@unmanaged export class subscription_clock extends $subscription {
+@unmanaged
+export class subscription_clock extends $subscription {
   /** The clock against which to compare the timestamp. */
   clock_id: clockid;
   /** The absolute or relative timestamp. */
@@ -1532,7 +1576,8 @@ export type subclockflags = u16;
 }
 
 /* Subscription to an event of type `eventtype.FD_READ` or `eventtype.FD_WRITE`.**/
-@unmanaged export class subscription_fd_readwrite extends $subscription {
+@unmanaged
+export class subscription_fd_readwrite extends $subscription {
   /** The file descriptor on which to wait for it to become ready for reading or writing. */
   file_descriptor: fd;
 
