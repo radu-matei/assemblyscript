@@ -559,6 +559,15 @@ export declare function sched_yield(): errno;
 @unsafe
 export declare function sock_connect(sock: fd, ipv4: u32, port: u16): errno;
 
+/** Directly bind to a socket. */
+/** This is a temporarily workaround that contradicts the philosophy of WASI. */
+/** but which is temporary for enabling an entire suite of networking workloads. */
+/** As the sockets proposal is adopted, this should be entirely replaced by that proposal. */
+/** See . https://github.com/WebAssembly/WASI/pull/312*/
+// @ts-ignore: decorator
+@unsafe
+export declare function sock_bind(sock: fd, ipv4: u32, port: u16): errno;
+
 /** Receive a message from a socket. */
 // @ts-ignore: decorator
 @unsafe
